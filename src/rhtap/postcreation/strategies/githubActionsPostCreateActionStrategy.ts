@@ -2,6 +2,7 @@ import { Component } from '../../core/component';
 import { GitType } from '../../core/integration/git';
 import { AddGithubSecretsAndVariablesCommand } from './commands/addGithubSecretsAndVariablesCommand';
 import { Command } from './commands/command';
+import { UpdateCIRunnerImage } from './commands/updateCIRunnerImage';
 import { PostCreateActionStrategy } from './postCreateActionStrategy';
 
 export class GithubActionsPostCreateActionStrategy implements PostCreateActionStrategy {
@@ -26,7 +27,10 @@ export class GithubActionsPostCreateActionStrategy implements PostCreateActionSt
 
   private async handleGithubProviderActions(component: Component): Promise<void> {
     const componentName = component.getName();
-    const commands: Command[] = [new AddGithubSecretsAndVariablesCommand(component)];
+    const commands: Command[] = [
+      new AddGithubSecretsAndVariablesCommand(component),
+      new UpdateCIRunnerImage(component),
+    ];
     for (const command of commands) {
       await command.execute();
     }

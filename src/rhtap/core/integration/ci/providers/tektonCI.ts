@@ -379,6 +379,10 @@ export class TektonCI extends BaseCI {
     );
   }
 
+  public override async getCIFilePathInRepo(): Promise<string> {
+    return '.tekton';
+  }
+
   public override async getPipelineLogs(pipeline: Pipeline): Promise<string> {
     if (!pipeline.name) {
       throw new Error('Pipeline name is required for Tekton pipelines');

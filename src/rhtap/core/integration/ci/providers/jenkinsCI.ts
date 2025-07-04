@@ -465,6 +465,10 @@ export class JenkinsCI extends BaseCI {
     return this.secret;
   }
 
+  public override async getCIFilePathInRepo(): Promise<string> {
+    return 'Jenkinsfile';
+  }
+
   /**
    * Get logs for a Jenkins pipeline build
    * @param pipeline The pipeline to get logs for

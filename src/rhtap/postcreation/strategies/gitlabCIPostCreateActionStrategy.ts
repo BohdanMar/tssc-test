@@ -2,6 +2,7 @@ import { Component } from '../../core/component';
 import { GitType } from '../../core/integration/git';
 import { AddGitlabProjectVariablesCommand } from './commands/addGitlabProjectVariablesCommand';
 import { Command } from './commands/command';
+import { UpdateCIRunnerImage } from './commands/updateCIRunnerImage';
 import { PostCreateActionStrategy } from './postCreateActionStrategy';
 
 /**
@@ -77,7 +78,7 @@ export class GitlabCIPostCreateActionStrategy implements PostCreateActionStrateg
    * @returns Array of Command instances suitable for GitLab integration
    */
   private createCommandsForGitLab(component: Component): Command[] {
-    return [new AddGitlabProjectVariablesCommand(component)];
+    return [new AddGitlabProjectVariablesCommand(component), new UpdateCIRunnerImage(component)];
   }
 
   /**

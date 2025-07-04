@@ -1,38 +1,34 @@
 import { defineConfig, PlaywrightTestConfig, PlaywrightTestOptions, PlaywrightWorkerOptions } from '@playwright/test';
 import { readFileSync } from 'fs';
 import path from 'path';
+import { TestPlan } from './src/playwright/testplan';
 import { TestItem } from './src/playwright/testItem';
-import { TemplateType } from './src/rhtap/core/integration/git/templates/templateFactory';
-import { ImageRegistryType } from './src/rhtap/core/integration/registry';
-import { GitType } from './src/rhtap/core/integration/git';
-import { CIType } from './src/rhtap/core/integration/ci';
+
+// Extend Playwright types to include testItem
+declare module '@playwright/test' {
+  interface PlaywrightTestOptions {
+    testItem?: TestItem;
+  }
+}
 
 // Load the test plan
 const testPlanPath = process.env.TESTPLAN_PATH || path.resolve(process.cwd(), 'testplan.json');
 const testPlanData = JSON.parse(readFileSync(testPlanPath, 'utf-8'));
-const templates = testPlanData.templates || [];
-const tssc = testPlanData.tssc || {};
+const testPlan = new TestPlan(testPlanData);
 
-// Create a project for each template
-const projects = templates.map(template => ({
-  name: `template-${template}`,
+// Create projects using the TestPlan class
+const projects = testPlan.getProjectConfigs().map(config => ({
+  name: config.name,
   use: {
-    testItem: new TestItem(
-      template as TemplateType,
-      tssc.registry as ImageRegistryType,
-      tssc.git as GitType,
-      tssc.ci as CIType,
-      tssc.tpa || '',
-      tssc.acs || ''
-    )
+    testItem: config.testItem,
   },
 }));
 
 export default defineConfig({
   testDir: './tests',
   testMatch: '**/*.test.ts',
-  workers: 3,
+  workers: 6,
   projects: projects.length ? projects : [{ name: 'default' }],
-  reporter: [['html'], ['list']],
+  reporter: [['html', { open: 'never' }], ['list']],
   timeout: 900000, // Default to 15 minutes (900000ms)
 });

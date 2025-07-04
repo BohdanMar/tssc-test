@@ -27,7 +27,7 @@ const test = createBasicFixture();
  * 4. Verification of deployments in all environments
  * 5. SBOM validation in Trustification server
  */
-test.describe('TSSC Complete Component Workflow', () => {
+test.describe('TSSC Complete Workflow', () => {
   // Shared variables for test steps
   let component: Component;
   let cd: ArgoCD;
@@ -69,7 +69,7 @@ test.describe('TSSC Complete Component Workflow', () => {
     });
   });
 
-  test.describe('Source Code Changes', () => {
+  test.describe('Build Application Image', () => {
     test('should build application changes as new image through pipelines', async () => {
       // Handle source code changes based on CI provider type
       await handleSourceRepoCodeChanges(git, ci);

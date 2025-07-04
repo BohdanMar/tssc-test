@@ -106,4 +106,11 @@ export interface Git extends IntegrationSecret {
   getHost(): string;
 
   getRepoOwner(): string;
+
+  getFileContentInString(
+    owner: string,
+    repo: string,
+    filePath: string,
+    branch: string
+  ): Promise<string>;
 }

@@ -174,6 +174,29 @@ export class GithubProvider extends BaseGitProvider {
     );
   }
 
+  public override async getFileContentInString(
+    owner: string,
+    repo: string,
+    filePath: string,
+    branch: string
+  ): Promise<string> {
+    try {
+      // Get the content of the file
+      console.log(`Getting File Contents of ${filePath} in repo ${repo}`);
+      const fileContent = await this.githubClient.getContent(owner, repo, filePath, branch);
+
+      if (!fileContent || !('content' in fileContent)) {
+        throw new Error(`Could not retrieve content for file: ${filePath}`);
+      }
+
+      // Decode the content from base64
+      return Buffer.from(fileContent.content, 'base64').toString('utf-8');
+    } catch (error: any) {
+      console.error(`Error getting file contents of ${filePath} in repo ${repo}:${error.message}`);
+      throw error;
+    }
+  }
+
   /**
    * Creates a promotion pull request in the gitops repository to move changes between environments
    * @param environment The target environment for promotion (e.g., 'development', 'stage', 'prod')
@@ -196,19 +219,12 @@ export class GithubProvider extends BaseGitProvider {
 
     try {
       // Get the current content of the deployment patch file
-      const fileContent = await this.githubClient.getContent(
+      const currentContent = await this.getFileContentInString(
         this.repoOwner,
         this.gitOpsRepoName,
         filePath,
         baseBranch
       );
-
-      if (!fileContent || !('content' in fileContent)) {
-        throw new Error(`Could not retrieve content for file: ${filePath}`);
-      }
-
-      // Decode the content from base64
-      const currentContent = Buffer.from(fileContent.content, 'base64').toString('utf-8');
 
       // Parse the content to find the current image line
       const lines = currentContent.split('\n');
@@ -378,19 +394,12 @@ export class GithubProvider extends BaseGitProvider {
       console.log(`Creating a direct promotion commit for environment: ${environment}`);
 
       // Get the current content of the deployment patch file
-      const fileContent = await this.githubClient.getContent(
+      const currentContent = await this.getFileContentInString(
         this.repoOwner,
         this.gitOpsRepoName,
         filePath,
         branch
       );
-
-      if (!fileContent || !('content' in fileContent)) {
-        throw new Error(`Could not retrieve content for file: ${filePath}`);
-      }
-
-      // Decode the content from base64
-      const currentContent = Buffer.from(fileContent.content, 'base64').toString('utf-8');
 
       // Parse the content to find the current image line
       const lines = currentContent.split('\n');

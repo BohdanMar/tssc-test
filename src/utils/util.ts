@@ -219,3 +219,22 @@ export function base64Decode(base64Str: string, isUrlSafe: boolean = false): str
     throw new Error(`Failed to decode base64 string: ${err}`);
   }
 }
+
+/**
+ * Gets existing Runner Image value from CI File content
+ * @param fileContent file content string
+ * @returns runner image value
+ */
+export function getRunnerImageFromCIFile(fileContent: string): string {
+  const pattern = /^\s*image:\s*(.*)$/gm;
+  const match = pattern.exec(fileContent);
+
+  if (!match) {
+    throw new Error(`Runner image not found in the CI file content`);
+  }
+
+  // Get group value after "image:" pattern if match found
+  const oldImageValue = match[1];
+  console.log(`Old Image Value: ${oldImageValue}`);
+  return oldImageValue;
+}

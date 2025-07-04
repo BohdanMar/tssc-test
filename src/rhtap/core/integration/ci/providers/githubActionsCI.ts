@@ -419,6 +419,10 @@ export class GitHubActionsCI extends BaseCI {
     );
   }
 
+  public override async getCIFilePathInRepo(): Promise<string> {
+    return '.github/workflows';
+  }
+
   public override async getPipelineLogs(pipeline: Pipeline): Promise<string> {
     try {
       console.log(

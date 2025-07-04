@@ -109,6 +109,28 @@ export class BitbucketProvider extends BaseGitProvider {
     return this.secret.appPassword;
   }
 
+  public override async getFileContentInString(
+    owner: string,
+    repo: string,
+    filePath: string,
+    branch: string
+  ): Promise<string> {
+    try {
+      // Get the content of the  file
+      console.log(`Getting File Contents of ${filePath} in repo ${repo}`);
+      const fileContent = await this.bitbucketClient.getFileContent(owner, repo, filePath, branch);
+
+      if (!fileContent) {
+        throw new Error(`No content found in file: ${filePath}`);
+      }
+
+      return fileContent;
+    } catch (error: any) {
+      console.error(`Error getting file contents of ${filePath} in repo ${repo}:${error.message}`);
+      throw error;
+    }
+  }
+
   /**
    * Creates a sample pull request in the specified repository
    *
@@ -264,7 +286,7 @@ export class BitbucketProvider extends BaseGitProvider {
 
             try {
               // Try to get existing content if the file exists
-              const existingContent = await this.bitbucketClient.getFileContent(
+              const existingContent = await this.getFileContentInString(
                 this.workspace,
                 this.sourceRepoName,
                 filePath,
@@ -383,7 +405,7 @@ export class BitbucketProvider extends BaseGitProvider {
             let fileContent;
             try {
               // Try to get existing content
-              fileContent = await this.bitbucketClient.getFileContent(
+              fileContent = await this.getFileContentInString(
                 this.workspace,
                 repo,
                 filePath,
@@ -535,16 +557,12 @@ export class BitbucketProvider extends BaseGitProvider {
       console.log(`Creating a direct promotion commit for environment: ${environment}`);
 
       // Get the current content of the deployment patch file
-      const fileContent = await this.bitbucketClient.getFileContent(
+      const fileContent = await this.getFileContentInString(
         this.workspace,
         this.gitOpsRepoName,
         filePath,
         branch
       );
-
-      if (!fileContent) {
-        throw new Error(`Could not retrieve content for file: ${filePath}`);
-      }
 
       // Parse the content to find the current image line
       const lines = fileContent.split('\n');
@@ -700,16 +718,12 @@ export class BitbucketProvider extends BaseGitProvider {
       console.log(`Creating a promotion PR for environment: ${environment}`);
 
       // Get the current content of the deployment patch file
-      const fileContent = await this.bitbucketClient.getFileContent(
+      const fileContent = await this.getFileContentInString(
         this.workspace,
         this.gitOpsRepoName,
         filePath,
         baseBranch
       );
-
-      if (!fileContent) {
-        throw new Error(`Could not retrieve content for file: ${filePath}`);
-      }
 
       // Parse the content to find the current image line
       const lines = fileContent.split('\n');
@@ -821,16 +835,12 @@ export class BitbucketProvider extends BaseGitProvider {
 
     try {
       // Get the file content
-      const fileContent = await this.bitbucketClient.getFileContent(
+      const fileContent = await this.getFileContentInString(
         this.workspace,
         this.gitOpsRepoName,
         filePath,
         'main'
       );
-
-      if (!fileContent) {
-        throw new Error(`No content found in file: ${filePath}`);
-      }
 
       // Convert to string if needed
       const content = typeof fileContent === 'string' ? fileContent : JSON.stringify(fileContent);

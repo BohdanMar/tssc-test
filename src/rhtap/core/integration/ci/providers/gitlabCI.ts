@@ -112,7 +112,9 @@ export class GitLabCI extends BaseCI {
         pipelines.map(pipeline => {
           console.log(`Pipeline ID: ${pipeline.id}, Source: ${pipeline.source}`);
         });
-        pipelines = pipelines.filter(pipeline => pipeline.source === 'push'); // This is a workaround for GitLabCI, When Open a PR or Merge Request, the pipeline source is "push"
+        pipelines = pipelines.filter(
+          pipeline => pipeline.source === 'push' || pipeline.source === 'merge_request_event'
+        );
 
         // Check if pipelines array is empty after filtering
         if (pipelines.length === 0) {
@@ -278,5 +280,9 @@ export class GitLabCI extends BaseCI {
 
   public getPipelineLogs(pipeline: Pipeline): Promise<string> {
     return this.gitlabCIClient.getPipelineLogs(pipeline.id);
+  }
+
+  public override async getCIFilePathInRepo(): Promise<string> {
+    return '.gitlab-ci.yml';
   }
 }

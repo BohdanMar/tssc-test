@@ -108,6 +108,28 @@ export class GitlabProvider extends BaseGitProvider {
     return this.secret.webhookSecret;
   }
 
+  public override async getFileContentInString(
+    owner: string,
+    repo: string,
+    filePath: string,
+    branch: string
+  ): Promise<string> {
+    try {
+      const project = await this.gitlabClient.getProject(`${owner}/${repo}`);
+      const projectId = project.id;
+
+      console.log(`Getting File Contents of ${filePath} in repo ${repo}`);
+      // Get the current content of the deployment patch file
+      const fileContent = await this.gitlabClient.getFileContent(projectId, filePath, branch);
+
+      // Decode the content from base64
+      return Buffer.from(fileContent.content, 'base64').toString('utf-8');
+    } catch (error: any) {
+      console.error(`Error getting file contents of ${filePath} in repo ${repo}:${error.message}`);
+      throw error;
+    }
+  }
+
   /**
    * Creates a direct commit to the gitops repository to update the image for a specific environment
    * @param environment The target environment for promotion (e.g., 'development', 'stage', 'prod')
@@ -136,26 +158,12 @@ export class GitlabProvider extends BaseGitProvider {
     try {
       console.log(`Creating a direct promotion commit for environment: ${environment}`);
 
-      // Find the GitOps project ID using direct path lookup (more efficient)
-      let projectId;
-      try {
-        const project = await this.gitlabClient.getProject(
-          `${this.getGroup()}/${this.gitOpsRepoName}`
-        );
-        projectId = project.id;
-      } catch (error) {
-        throw new Error(`GitOps project ${this.getGroup()}/${this.gitOpsRepoName} not found`);
-      }
-
-      // Get the current content of the deployment patch file
-      const fileContent = await this.gitlabClient.getFileContent(projectId, filePath, branch);
-
-      if (!fileContent || !fileContent.content) {
-        throw new Error(`Could not retrieve content for file: ${filePath}`);
-      }
-
-      // Decode the content from base64
-      const currentContent = Buffer.from(fileContent.content, 'base64').toString('utf-8');
+      const currentContent = await this.getFileContentInString(
+        this.getGroup(),
+        this.gitOpsRepoName,
+        filePath,
+        branch
+      );
 
       // Parse the content to find the current image line
       const lines = currentContent.split('\n');
@@ -295,26 +303,12 @@ export class GitlabProvider extends BaseGitProvider {
     const contentModifications: ContentModifications = {};
 
     try {
-      // Find the GitOps project ID using direct path lookup (more efficient)
-      let projectId;
-      try {
-        const project = await this.gitlabClient.getProject(
-          `${this.getGroup()}/${this.gitOpsRepoName}`
-        );
-        projectId = project.id;
-      } catch (error) {
-        throw new Error(`GitOps project ${this.getGroup()}/${this.gitOpsRepoName} not found`);
-      }
-
-      // Get the current content of the deployment patch file
-      const fileContent = await this.gitlabClient.getFileContent(projectId, filePath, baseBranch);
-
-      if (!fileContent || !fileContent.content) {
-        throw new Error(`Could not retrieve content for file: ${filePath}`);
-      }
-
-      // Decode the content from base64
-      const currentContent = Buffer.from(fileContent.content, 'base64').toString('utf-8');
+      const currentContent = await this.getFileContentInString(
+        this.getGroup(),
+        this.gitOpsRepoName,
+        filePath,
+        baseBranch
+      );
 
       // Parse the content to find the current image line
       const lines = currentContent.split('\n');

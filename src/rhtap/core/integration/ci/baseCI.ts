@@ -121,4 +121,6 @@ export abstract class BaseCI implements CI {
   public abstract getWebhookUrl(): Promise<string>;
 
   public abstract getIntegrationSecret(): Promise<Record<string, string>>;
+
+  public abstract getCIFilePathInRepo(): Promise<string>;
 }

@@ -148,4 +148,19 @@ export abstract class BaseGitProvider implements Git {
    * @returns The repository owner identifier appropriate for the Git provider
    */
   public abstract getRepoOwner(): string;
+
+  /**
+   * Get content of specified file in the repo
+   * @param owner The repository owner
+   * @param repo The repository name
+   * @param filePath The file path
+   * @param branch The branch to commit to (default: 'main')
+   * @returns file content in string type
+   */
+  public abstract getFileContentInString(
+    owner: string,
+    repo: string,
+    filePath: string,
+    branch: string
+  ): Promise<string>;
 }

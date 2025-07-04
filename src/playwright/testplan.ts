@@ -1,29 +1,31 @@
-import { CIType } from '../../src/rhtap/core/integration/ci';
-import { GitType } from '../../src/rhtap/core/integration/git';
-import { TemplateType } from '../../src/rhtap/core/integration/git';
-import { ImageRegistryType } from '../../src/rhtap/core/integration/registry';
+import { CIType } from '../rhtap/core/integration/ci';
+import { GitType } from '../rhtap/core/integration/git';
+import { TemplateType } from '../rhtap/core/integration/git/templates/templateFactory';
+import { ImageRegistryType } from '../rhtap/core/integration/registry';
 import { TestItem } from './testItem';
+
+export interface TSScConfig {
+  git: GitType;
+  ci: CIType;
+  registry: ImageRegistryType;
+  tpa: string;
+  acs: string;
+}
 
 export class TestPlan {
   templates: string[];
-  tssc: {
-    git: GitType;
-    ci: CIType;
-    registry: ImageRegistryType;
-    tpa: string;
-    acs: string;
-  };
+  tsscConfigs: TSScConfig[];
   tests: string[];
 
   constructor(data: any) {
     this.templates = data.templates || [];
-    this.tssc = {
-      git: data.tssc?.git || '',
-      ci: data.tssc?.ci || '',
-      registry: data.tssc?.registry || '',
-      tpa: data.tssc?.tpa || '',
-      acs: data.tssc?.acs || '',
-    };
+    this.tsscConfigs = (data.tssc || []).map((config: any) => ({
+      git: config.git || '',
+      ci: config.ci || '',
+      registry: config.registry || '',
+      tpa: config.tpa || '',
+      acs: config.acs || '',
+    }));
     this.tests = data.tests || [];
   }
 
@@ -34,16 +36,67 @@ export class TestPlan {
   hasTest(name: string): boolean {
     return this.tests.includes(name);
   }
+
   getTestItems(): TestItem[] {
-    return this.templates.map((template: string) => {
-      return new TestItem(
-        template as unknown as TemplateType,
-        this.tssc.registry,
-        this.tssc.git,
-        this.tssc.ci,
-        this.tssc.tpa,
-        this.tssc.acs
-      );
+    const testItems: TestItem[] = [];
+    
+    this.templates.forEach(template => {
+      this.tsscConfigs.forEach(tsscConfig => {
+        testItems.push(
+          new TestItem(
+            template as TemplateType,
+            tsscConfig.registry,
+            tsscConfig.git,
+            tsscConfig.ci,
+            tsscConfig.tpa,
+            tsscConfig.acs
+          )
+        );
+      });
     });
+    
+    return testItems;
+  }
+
+  getProjectConfigs(): Array<{
+    name: string;
+    testItem: TestItem;
+  }> {
+    const projects: Array<{ name: string; testItem: TestItem }> = [];
+    
+    this.templates.forEach(template => {
+      this.tsscConfigs.forEach(tsscConfig => {
+        projects.push({
+          name: `${template}[${tsscConfig.git}-${tsscConfig.ci}-${tsscConfig.registry}]`,
+          testItem: new TestItem(
+            template as TemplateType,
+            tsscConfig.registry,
+            tsscConfig.git,
+            tsscConfig.ci,
+            tsscConfig.tpa,
+            tsscConfig.acs
+          )
+        });
+      });
+    });
+    
+    return projects;
+  }
+
+  // Helper methods for validation
+  isValid(): boolean {
+    return this.templates.length > 0 && this.tsscConfigs.length > 0;
+  }
+
+  getTotalProjectCount(): number {
+    return this.templates.length * this.tsscConfigs.length;
+  }
+
+  getTemplateNames(): string[] {
+    return [...this.templates];
+  }
+
+  getTsscConfigNames(): string[] {
+    return this.tsscConfigs.map(config => `${config.git}-${config.ci}`);
   }
 }

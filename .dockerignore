@@ -17,6 +17,7 @@ coverage/
 .env
 *.local
 /testplan.json
+integration-tests/
 
 # IDE and editor files
 .vscode/
