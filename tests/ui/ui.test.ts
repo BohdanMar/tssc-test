@@ -63,4 +63,15 @@ test.describe('RHTAP UI Test Suite', () => {
       await component.getGit()?.checkViewSourceLink(page);
     });
   });
-});
+  
+  test.describe("Verify CI", () => {
+    test('verify CI provider on CI tab', async ({ page }) => {
+      const componentUrl = component.getComponentUrl();
+      const ciTabUrl = `${componentUrl}/ci`;
+      await page.goto(ciTabUrl, { timeout: 20000 });
+        
+      await page.waitForLoadState('domcontentloaded');
+      await page.getByRole('heading', { name: component.getCoreComponent().getName() }).waitFor({ state: 'visible', timeout: 20000 });
+    });
+  });
+}); 

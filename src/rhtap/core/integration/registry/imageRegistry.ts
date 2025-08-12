@@ -2,6 +2,7 @@ import { KubeClient } from './../../../../../src/api/ocp/kubeClient';
 
 export enum ImageRegistryType {
   QUAY = 'quay',
+  QUAY_IO = 'quay_io',
   ARTIFACTORY = 'artifactory',
   NEXUS = 'nexus',
 }
