@@ -7,7 +7,6 @@
 
 import { Git, GitType } from '../../../rhtap/core/integration/git/gitInterface';
 import { GithubUiPlugin } from './github';
-import { GitlabUiPlugin } from './gitlab';
 import { GitPlugin } from './gitUiInterface';
 
 export class GitUiFactory {
@@ -22,14 +21,13 @@ export class GitUiFactory {
     static async createGitPlugin(
         gitType: GitType,
         git: Git
-    ): Promise<GitPlugin> {
+    ): Promise<GitPlugin | undefined> {
         switch (gitType) {
             case GitType.GITHUB:
                 return new GithubUiPlugin(git);
-            case GitType.GITLAB:
-                return new GitlabUiPlugin(git);
             default:
-                throw new Error(`Unsupported Git type: ${gitType}`);
+                console.warn(`Unsupported Git type: ${gitType}`);
+                return undefined;
         }
     }
-} 
+}

@@ -19,9 +19,9 @@ import { GitUiFactory } from './plugins/git/gitUiFactory';
 
 export class UiComponent {
   private component: Component;
-  private git!: GitPlugin;
+  private git: GitPlugin | undefined;
 
-  private constructor(component: Component, git: GitPlugin) {
+  private constructor(component: Component, git: GitPlugin | undefined) {
     this.component = component;
     this.git = git;
   }
@@ -68,7 +68,7 @@ export class UiComponent {
    * 
    * @returns The GitPlugin instance for UI automation
    */
-  public getGit(): GitPlugin {
+  public getGit(): GitPlugin | undefined {
     return this.git;
   }
 

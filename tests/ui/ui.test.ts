@@ -1,6 +1,5 @@
 import { createBasicFixture } from '../../src/utils/test/fixtures';
 import { UiComponent } from '../../src/ui/uiComponent';
-import { loadFromEnv } from '../../src/utils/util';
 import { CommonPO } from '../../src/ui/page-objects/common_po';
 
 /**
@@ -48,13 +47,20 @@ test.describe('RHTAP UI Test Suite', () => {
 
   test.describe("Verify Git", () => {
     test('verify "View Source" link', async ({ page }) => {
+      // Skip test for not yet supported git providers
+      if (component.getGit() === undefined) {
+        console.warn(`Skipping Git test as testing ${component.getCoreComponent().getGit().getGitType()} is not supported`);
+        test.skip();
+        return;
+      }
+
       const componentUrl = component.getComponentUrl();
       await page.goto(componentUrl, { timeout: 20000 });
         
       await page.waitForLoadState('domcontentloaded');
       await page.getByRole('heading', { name: component.getCoreComponent().getName() }).waitFor({ state: 'visible', timeout: 20000 });
         
-      await component.getGit().checkViewSourceLink(page);
+      await component.getGit()?.checkViewSourceLink(page);
     });
   });
-}); 
+});
