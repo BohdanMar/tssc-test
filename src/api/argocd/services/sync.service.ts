@@ -165,24 +165,52 @@ export class ArgoCDSyncService {
   }
 
   private async executeSync(syncCmd: string, applicationName: string): Promise<void> {
-    try {
-      console.log(`Executing sync command: ${syncCmd}`);
-      const { stdout, stderr } = await exec(syncCmd);
+    const maxRetries = 5;
+    
+    await retry(
+      async (bail) => {
+        try {
+          console.log(`Executing sync command: ${syncCmd}`);
+          const { stdout, stderr } = await exec(syncCmd);
 
-      if (stderr && stderr.trim()) {
-        console.warn(`ArgoCD sync warnings: ${stderr}`);
+          if (stderr && stderr.trim()) {
+            console.warn(`ArgoCD sync warnings: ${stderr}`);
+          }
+          if (stdout) {
+            console.log(`ArgoCD sync output: ${stdout}`);
+          }
+        } catch (syncError: any) {
+          console.error(`Error executing sync command: ${syncError.message}`);
+          
+          // Check if this is the "another operation is already in progress" error
+          if (syncError.message && (
+            syncError.message.includes('another operation is already in progress') ||
+            syncError.message.includes('FailedPrecondition')
+          )) {
+            // This is a retryable error - throw to trigger retry
+            throw new Error(`ArgoCD sync conflict: ${syncError.message}`);
+          }
+          
+          // For other errors, use bail() to make them non-retryable
+          bail(new ArgoCDSyncError(
+            applicationName,
+            `Failed to execute sync command: ${syncError.message}`,
+            syncError
+          ));
+        }
+      },
+      {
+        retries: maxRetries,
+        minTimeout: 2000,
+        factor: 2,
+        maxTimeout: 30000,
+        onRetry: (error: Error, attempt: number) => {
+          console.log(
+            `[SYNC-RETRY ${attempt}/${maxRetries}] 🔄 Application: ${applicationName} | Status: Retrying sync | Reason: ${error.message}`
+          );
+        },
       }
-      if (stdout) {
-        console.log(`ArgoCD sync output: ${stdout}`);
-      }
-    } catch (syncError: any) {
-      console.error(`Error executing sync command: ${syncError.message}`);
-      throw new ArgoCDSyncError(
-        applicationName,
-        `Failed to execute sync command: ${syncError.message}`,
-        syncError
-      );
-    }
+    );
   }
 
   private async monitorSyncProcess(

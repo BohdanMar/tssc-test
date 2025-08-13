@@ -1,0 +1,182 @@
+# CodeRabbit configuration for TSSC E2E Testing Framework
+# This configuration is tailored for a TypeScript/Playwright testing framework
+# that tests Red Hat Trusted Software Supply Chain CLI integrations
+
+# Set language for reviews
+language: "en-US"
+
+# Set a professional tone for reviews
+tone_instructions: "Provide constructive feedback focused on testing reliability, security, and maintainability for this TSSC E2E testing framework."
+
+# Enable early access features
+early_access: true
+
+# Enable free tier features
+enable_free_tier: true
+
+# Review configuration
+reviews:
+  # Use assertive profile for more thorough feedback
+  profile: "assertive"
+
+  # Enable request changes workflow
+  request_changes_workflow: true
+
+  # Enable high-level summary
+  high_level_summary: true
+
+  # Enable various walkthrough features
+  changed_files_summary: true
+  sequence_diagrams: true
+  assess_linked_issues: true
+  related_issues: true
+  related_prs: true
+  suggested_labels: true
+  suggested_reviewers: true
+
+  # Enable auto-apply labels for better organization
+  auto_apply_labels: true
+
+  # Disable poem generation for professional reviews
+  poem: false
+
+  # Path filters to exclude certain files from review
+  path_filters:
+    - "!**/node_modules/**"
+    - "!**/test-results/**"
+    - "!**/playwright-report/**"
+    - "!**/.env*"
+    - "!**/package-lock.json"
+    - "!**/*.log"
+    - "!**/*.jpg"
+    - "!**/*.png"
+    - "!**/*.gif"
+    - "!**/*.svg"
+    - "!**/*.ico"
+    - "!**/.cursorignore"
+    - "!**/.gitignore"
+    - "!**/LICENSE"
+    - "src/**"
+    - "tests/**"
+    - "integration-tests/**"
+    - "*.ts"
+    - "*.js"
+    - "*.json"
+    - "*.yaml"
+    - "*.yml"
+
+  # Path-specific instructions for different parts of the codebase
+  path_instructions:
+    - path: "src/api/**"
+      instructions: "Focus on error handling, retry mechanisms, proper async/await usage, API client patterns, authentication security, and comprehensive logging for debugging. Ensure all API calls have appropriate timeouts and circuit breaker patterns."
+
+    - path: "src/rhtap/core/**"
+      instructions: "Review component architecture, interface design, abstraction patterns, extensibility, integration reliability, and proper type definitions. Ensure the factory and strategy patterns are implemented correctly."
+
+    - path: "src/rhtap/core/integration/**"
+      instructions: "Focus on integration reliability, error handling, factory pattern implementation, provider abstraction, configuration management, and testing of external dependencies. Validate connection pooling and resource management."
+
+    - path: "src/rhtap/postcreation/**"
+      instructions: "Review command pattern implementation, strategy pattern usage, credential handling security, error handling for external service calls, and ensure proper cleanup of resources. Validate secret management practices."
+
+    - path: "tests/**"
+      instructions: "Focus on test coverage, maintainability, proper test structure, test isolation, mock usage, async test patterns, and test stability. Ensure tests are deterministic and properly clean up after themselves."
+
+    - path: "src/ui/**"
+      instructions: "Focus on page object pattern implementation, element selection strategies, UI test stability, maintainability, proper wait conditions, error handling, and flaky test prevention. Ensure tests are resilient to UI changes."
+
+    - path: "playwright.config.ts"
+      instructions: "Review test configuration for optimal performance, browser configurations, device settings, reporter configurations, artifact management, and parallelization settings."
+
+    - path: "global-setup.ts"
+      instructions: "Review global test setup and teardown procedures, environment preparation, authentication setup, prerequisite validation, and resource cleanup. Ensure idempotent setup."
+
+    - path: "**/*.test.ts"
+      instructions: "Ensure comprehensive test coverage, proper assertions, test isolation, async pattern correctness, mock usage, and test maintainability. Review for potential flaky tests and race conditions."
+
+    - path: "src/utils/**"
+      instructions: "Focus on utility function reliability, error handling, input validation, type safety, and reusability. Ensure utilities are well-tested and handle edge cases."
+
+    - path: "src/log/**"
+      instructions: "Review logging implementation for proper log levels, structured logging, sensitive data handling, performance impact, and debugging capabilities."
+
+  # Labeling instructions for better PR organization
+  labeling_instructions:
+    - label: "testing"
+      instructions: "Apply when the PR contains changes to test files, test utilities, or testing infrastructure."
+
+    - label: "api-client"
+      instructions: "Apply when the PR modifies API client implementations in src/api/."
+
+    - label: "integration"
+      instructions: "Apply when the PR changes integration code in src/rhtap/core/integration/."
+
+    - label: "ui-testing"
+      instructions: "Apply when the PR modifies UI test code in src/ui/."
+
+    - label: "security"
+      instructions: "Apply when the PR involves credential handling, authentication, or security-related changes."
+
+    - label: "configuration"
+      instructions: "Apply when the PR changes configuration files, environment setup, or deployment scripts."
+
+    - label: "documentation"
+      instructions: "Apply when the PR updates documentation, README files, or code comments."
+
+    - label: "performance"
+      instructions: "Apply when the PR includes performance improvements or optimizations."
+
+    - label: "bug-fix"
+      instructions: "Apply when the PR fixes bugs or resolves issues."
+
+    - label: "enhancement"
+      instructions: "Apply when the PR adds new features or improves existing functionality."
+
+# Knowledge base configuration
+knowledge_base:
+  # Enable web search for additional context
+  web_search:
+    enabled: true
+
+  # Enable code guidelines enforcement
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "**/.cursorrules"
+      - ".github/copilot-instructions.md"
+      - "**/CLAUDE.md"
+      - "**/GEMINI.md"
+      - "**/.cursor/rules/*"
+      - "**/AGENT.md"
+      - "README.md"
+      - "docs/**/*.md"
+
+  # Use auto scope for learnings
+  learnings:
+    scope: "auto"
+
+  # Use auto scope for issues
+  issues:
+    scope: "auto"
+
+  # Use auto scope for pull requests
+  pull_requests:
+    scope: "auto"
+
+# Code generation settings
+code_generation:
+  # Docstring generation settings
+  docstrings:
+    language: "en-US"
+    path_instructions:
+      - path: "src/api/**"
+        instructions: "Generate comprehensive docstrings for API clients including parameter descriptions, return types, error conditions, and usage examples."
+
+      - path: "src/rhtap/core/**"
+        instructions: "Generate detailed docstrings for core components including architectural decisions, interface contracts, and integration patterns."
+
+      - path: "src/ui/**"
+        instructions: "Generate docstrings for UI components focusing on page object patterns, element interactions, and test maintenance."
+
+      - path: "tests/**"
+        instructions: "Generate docstrings for test functions describing test scenarios, expected outcomes, and test data requirements."

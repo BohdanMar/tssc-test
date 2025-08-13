@@ -154,14 +154,14 @@ export class DeveloperHub {
       }
     };
 
-    const maxRetries = 10; // Maximum number of retries (increased from 20)
+    const maxRetries = 24; // Maximum number of retries
+    const timeout = 5000;
 
     try {
       await retry(checkComponentStatus, {
         retries: maxRetries,
-        minTimeout: 5000, // Start with 5 seconds between retries (up from 5)
-        maxTimeout: 5000, // Maximum 5 seconds between retries
-        factor: 1.5, // Exponential backoff factor
+        minTimeout: timeout,
+        maxTimeout: timeout,
         onRetry: (error: Error, attempt: number) => {
           console.log(
             `[RETRY ${attempt}/${maxRetries}] 🔄 Task: ${taskId} | Reason: ${error.message}`
