@@ -1,6 +1,7 @@
 import { CIPlugin } from './ciPlugin';
 import { CIType } from '../../../rhtap/core/integration/ci/ciInterface';
 import { TektonPlugin } from './tektonPlugin';
+import { GithubActionsPlugin } from './githubActionsPlugin';
 
 export class CIFactory {
     /**
@@ -19,6 +20,8 @@ export class CIFactory {
         switch (ciType) {
             case CIType.TEKTON:
                 return new TektonPlugin(name, registryOrg);
+            case CIType.GITHUB_ACTIONS:
+                return new GithubActionsPlugin(name, registryOrg);
             default:
                 console.warn(`Unsupported CI type: ${ciType}`);
                 return undefined;

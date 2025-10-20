@@ -47,7 +47,12 @@ export async function waitForPageLoad(page: Page, name: string) {
     );
 
     await expect(page.getByTestId('sidebar-root')).toBeAttached({ timeout: 10000 });
-    await expect(page.getByRole('heading', { name: name })).toBeVisible({ timeout: 20000 });
+    const heading = page.getByRole('heading', { name });
+    if ((await heading.count()) > 1) {
+        await expect(heading.filter({ hasText: name }).first()).toBeVisible({ timeout: 20000 });
+    } else {
+        await expect(heading).toBeVisible({ timeout: 20000 });
+    }
     await page.waitForLoadState();
 }
 
