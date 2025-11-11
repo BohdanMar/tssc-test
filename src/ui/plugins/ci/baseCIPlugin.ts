@@ -97,6 +97,49 @@ export class BaseCIPlugin implements CIPlugin {
         await closeButton.click();
     }
 
+    protected async verifyImageScanRegistryLink(
+        page: Page,
+        row: Locator,
+        expectedHref: string,
+    ): Promise<void> {
+        // "View Scan Results" button, exposed to the tests through `view-output-icon`.
+        const viewOutputButton = row.getByTestId(CommonPO.viewOutputIconTestId);
+        await viewOutputButton.click();
+
+        const dialog = page.getByRole('dialog');
+        await expect(dialog).toBeVisible();
+
+        const imageScanTabButton = dialog.getByRole('tab', { name: CiPo.imageScanTabName });
+        await imageScanTabButton.click();
+
+        const visiblePanel = page.locator(AcsPO.visibleTabPanelSelector);
+        await expect(visiblePanel).toBeVisible();
+
+        const registryLink = visiblePanel.getByRole('link', { name: this.imageUrlRegex });
+        await expect(registryLink).toBeVisible();
+        await expect(registryLink).toHaveAttribute('href', expectedHref);
+
+        // Confirm the link opens a new tab leading to the external Quay registry.
+        const [externalPage] = await Promise.all([
+            page.waitForEvent('popup'),
+            registryLink.click(),
+        ]);
+
+        try {
+            await externalPage.waitForLoadState();
+            const destinationUrl = externalPage.url();
+            expect(destinationUrl.startsWith('https://quay.io/')).toBe(true);
+            expect(destinationUrl).toContain(expectedHref);
+            const backstageOrigin = new URL(page.url()).origin;
+            expect(destinationUrl.startsWith(backstageOrigin)).toBe(false);
+        } finally {
+            await externalPage.close();
+        }
+
+        const closeButton = dialog.getByTestId(CommonPO.closeIconTestId);
+        await closeButton.click();
+    }
+
     // eslint-disable-next-line no-unused-vars
     public async checkActions(_page: Page): Promise<void> {
     }
