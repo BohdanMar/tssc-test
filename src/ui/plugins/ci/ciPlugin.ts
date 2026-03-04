@@ -26,4 +26,10 @@ export interface CIPlugin {
      * @param page - The page object
      */
     checkImageRegistryLinks(page: Page): Promise<void>;
+
+    /**
+     * Check the Security Information (multi-source security viewer) section
+     * @param page - The page object
+     */
+    checkSecurityInformation(page: Page): Promise<void>;
 }

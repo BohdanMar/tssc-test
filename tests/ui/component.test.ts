@@ -111,6 +111,10 @@ test.describe('Component UI Test Suite', () => {
         await ciPlugin!.checkActions(page);
       }, {timeout: 40000});
 
+      await test.step('Check Security Information viewer', async () => {
+        await ciPlugin!.checkSecurityInformation(page);
+      }, { timeout: 30000 });
+
       await test.step('Check Pipeline Runs table row values', async () => {
         await ciPlugin!.checkPipelineRunsTable(page);
       }, { timeout: 30000 });

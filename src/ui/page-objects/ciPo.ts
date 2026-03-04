@@ -23,4 +23,10 @@ export const CiPo = {
     ],
     imageUrlRow: 'IMAGE_URL',
     chainsGitUrlRow: 'CHAINS-GIT_URL',
+
+    // Security Information (multi-source security viewer)
+    securityInformationHeading: 'Security Information',
+    securityTableColumns: ['Pipeline Run ID', 'Type', 'Critical', 'Important', 'Moderate', 'Low', 'SBOM', 'Actions'],
+    viewLogsButtonTestId: 'button-logs',
+    gitlabCITabName: 'Gitlab CI',
 };
